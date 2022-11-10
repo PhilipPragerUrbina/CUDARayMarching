@@ -11,7 +11,7 @@
 #include "Camera.cuh"
 
 #include "SDF/MandleBulb.cuh"
-
+#include "SDF//InfiniteSphere.cuh"
 
 __global__ void kernel(Vector3* image, Camera camera){
 //get indexes
@@ -20,7 +20,7 @@ __global__ void kernel(Vector3* image, Camera camera){
     unsigned int w = (y * camera.getWidth() + x) ;
 
     Ray r(camera.getRayOrigin(),camera.getRayDirection(x,y));
-    SDF* sdf = new MandelBulb();
+    SDF* sdf = new InfiniteSphere();
     double dist = r.trace(sdf);
     delete sdf;
     image[w] = Vector3(dist*255);

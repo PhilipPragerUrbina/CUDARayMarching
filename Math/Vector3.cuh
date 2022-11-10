@@ -7,6 +7,9 @@
 #include <cuda_runtime.h>
 #include <ostream>
 
+//ease opengl conversion
+#define vec3 Vector3
+
 /// Cuda Vector3 class
 /// @see Based off of TensorMath
 /// @details Works on device and host
@@ -199,6 +202,13 @@ public:
     /// @return distance
     __device__ __host__ double distance(const Vector3 &other) const {
         return (*this-other).length();
+    }
+
+    /// Modulus(fmod) each component by a value
+    /// @param value
+    /// @return modulus vector
+    __device__ __host__ Vector3 mod(Vector3 value){
+        return Vector3(fmod(data[0] , value[0]), fmod(data[1] , value[1]), fmod(data[2],value[2]));
     }
 
 };
