@@ -9,7 +9,8 @@
 #include "Camera.cuh"
 
 #include "SDF/MandleBulb.cuh"
-#include "SDF//InfiniteSphere.cuh"
+#include "SDF/InfiniteRepeat.cuh"
+#include "SDF/Sphere.cuh"
 
 /// The kernel itself
 /// @details Not in a class since it is a kernel
@@ -20,9 +21,10 @@ __global__ void kernel(Vector3* image, Camera camera){
      int w = (y * camera.getWidth() + x) ;
 
     Ray r(camera.getRayOrigin(),camera.getRayDirection(x,y));//create ray using camera
-    SDF* sdf = new InfiniteSphere(); //create any sdf
+    Sphere sphere = Sphere();
+    InfiniteRepeat repeat(&sphere,Vector3(1));
+    SDF* sdf = &repeat; //create any sdf
     double dist = r.trace(sdf, 0.001, 100);   //trace
-    delete sdf; //remove sdf
     image[w] = Vector3(dist*255); //save color value
 }
 
