@@ -2,69 +2,68 @@
 // Created by Philip on 10/30/2022.
 //
 
-#ifndef RAYMARCHERCPU_VIDEO_HPP
-#define RAYMARCHERCPU_VIDEO_HPP
+#pragma once
 
 #include "Image.hpp"
 #include <string>
-//saves image sequence in folder
+
+/// Saves image sequence in m_folder
 class Video : public Display{
 private:
-    Image* current_frame;
-    int width, height;
-    std::string folder;
-    int frame = 0;
+    Image* m_current_frame; //The image currently being written to
+    int m_width, m_height; //dimensions
+    std::string m_folder; //Folder to put the images in
+    int m_frame_count= 0; //current m_frame_count count
 
+    /// Initialize a new frame by creating the new image
     void newFrame(){
-        current_frame = new Image( width, height ,"./" + folder + "/" + folder + "_"+ std::to_string(frame) + ".jpg", Image::JPG);
-        frame++;
+        m_current_frame = new Image(m_width, m_height , "./" + m_folder + "/" + m_folder + "_" + std::to_string(m_frame_count) + ".jpg", Image::JPG); //create jpg image in directory
+        m_frame_count++;
     }
 
+    /// Save the image and clean up
     void stopFrame(){
-        current_frame->update();
-        delete current_frame;
+        m_current_frame->update();
+        delete m_current_frame;
     }
 
 public:
-    Video(std::string folder_name, int w, int h){
-       folder = folder_name;
-       width =w;
-       height= h;
-       newFrame();
+
+    /// Create a new image sequence
+    /// @param folder A directory that already exists, to put images in
+    /// @param width Width in pixels
+    /// @param height Height in pixels
+    /// @details Images are stored as a JPG, with the name (folder_name)_(frame count). Example: "render_2.jpg"
+    /// @example How to convert sequence to video: $ ffmpeg -i test_video_%d.jpg -c:v libx264 -vf format=yuv420p output.mp4
+    Video(const std::string& folder, int width, int height) : m_folder(folder) , m_width(width), m_height(height){
+        newFrame(); //create first frame
     }
 
+    /// Save the final frame
+    ~Video(){
+        stopFrame();
+    }
+
+    /// Proceed to next frame
     void update() override{
         stopFrame();
         newFrame();
     }
 
-    void setPixel(int x, int y, Vector3 rgb) override{
-        current_frame->setPixel(x,y,rgb);
+    //pass these methods to the frame
+    void setPixel(int x, int y, const Vector3& rgb) override{
+        m_current_frame->setPixel(x, y, rgb);
     }
-
     Vector3 getPixel(int x, int y) const override{
-        return current_frame->getPixel(x,y);
+        return m_current_frame->getPixel(x, y);
     }
 
     int getWidth() const override{
-        return width;
+        return m_width;
     }
-
     int getHeight() const override{
-        return height;
+        return m_height;
     }
-
-
-    ~Video(){
-        stopFrame();
-    }
-
-
-
-
-
-
 
 };
 
-#endif //RAYMARCHERCPU_VIDEO_HPP

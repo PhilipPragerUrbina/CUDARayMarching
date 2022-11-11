@@ -2,16 +2,15 @@
 // Created by Philip on 11/7/2022.
 //
 
-#ifndef RAYMARCHER_SDF_CUH
-#define RAYMARCHER_SDF_CUH
+#pragma once
 
 #include "../Math/Vector3.cuh"
+
+/// Interface for signed distance fields
 class SDF {
 public:
-    __device__ virtual double getDist(Vector3 point) const{return -1;}
-
-
+    /// Get the distance to a point using this SDF
+    /// @param point The point to get the distance from
+    /// @return The distance
+    __device__ virtual double getDist(const Vector3& point) const{return -1;}
 };
-
-
-#endif //RAYMARCHER_SDF_CUH
