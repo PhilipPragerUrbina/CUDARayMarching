@@ -3,9 +3,9 @@
 //
 
 #pragma once
-#include "Math/Vector3.cuh"
+#include "../Math/Vector3.cuh"
 
-#include "SDF/SDF.cuh"
+#include "../SDF/SDF.cuh"
 
 ///A ray that can be marched against an SDF
 class Ray {

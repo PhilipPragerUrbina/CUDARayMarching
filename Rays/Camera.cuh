@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Math/Vector3.cuh"
+#include "../Math/Vector3.cuh"
 
 /// A camera for generating rays in 3d space
 class Camera {
