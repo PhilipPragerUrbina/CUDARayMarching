@@ -3,130 +3,172 @@
 #include "IO/Image.hpp"
 #include "IO/Video.hpp"
 
-//https://github.com/thedmd/imgui-node-editor
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_timer.h>
-int main(int argc, char* argv[])
+
+#include "imgui.h"
+#include "imgui_impl_sdl.h"
+#include "imgui_impl_sdlrenderer.h"
+#include "imnodes.h"
+#include <stdio.h>
+#include <SDL.h>
+
+
+
+// Main code
+int main(int, char**)
 {
-
-    // returns zero on success else non-zero
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-        printf("error initializing SDL: %s\n", SDL_GetError());
+    // Setup SDL
+    // (Some versions of SDL before <2.0.10 appears to have performance/stalling issues on a minority of Windows systems,
+    // depending on whether SDL_INIT_GAMECONTROLLER is enabled or disabled.. updating to the latest version of SDL is recommended!)
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
+    {
+        printf("Error: %s\n", SDL_GetError());
+        return -1;
     }
-    SDL_Window* win = SDL_CreateWindow("GAME", // creates a window
-                                       SDL_WINDOWPOS_CENTERED,
-                                       SDL_WINDOWPOS_CENTERED,
-                                       1000, 1000, 0);
 
-    // triggers the program that controls
-    // your graphics hardware and sets flags
-    Uint32 render_flags = SDL_RENDERER_ACCELERATED;
+    // Setup window
+    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+    SDL_Window* window = SDL_CreateWindow("Dear ImGui SDL2+SDL_Renderer example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
 
-    // creates a renderer to render our images
-    SDL_Renderer* rend = SDL_CreateRenderer(win, -1, render_flags);
+    // Setup SDL_Renderer instance
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+    if (renderer == NULL)
+    {
+        SDL_Log("Error creating SDL_Renderer!");
+        return 0;
+    }
+    //SDL_RendererInfo info;
+    //SDL_GetRendererInfo(renderer, &info);
+    //SDL_Log("Current SDL_Renderer: %s", info.name);
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImNodes::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsLight();
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
+    ImGui_ImplSDLRenderer_Init(renderer);
+
+    // Load Fonts
+    // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
+    // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
+    // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
+    // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
+    // - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use Freetype for higher quality font rendering.
+    // - Read 'docs/FONTS.md' for more instructions and details.
+    // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
+    //io.Fonts->AddFontDefault();
+    //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
+    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
+    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
+    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
+    //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
+    //IM_ASSERT(font != NULL);
 
 
-
-
-
-
-
-    // let us control our image position
-    // so that we can move it with our keyboard.
-    SDL_Rect dest ;
-    dest.x = 0;
-    dest.y = 0;
-    dest.w = 32;
-    dest.h = 32;
-
-
-
-    // controls animation loop
-    int close = 0;
-
-    // speed of box
-    int speed = 300;
-
-    // animation loop
-    while (!close) {
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImNodesPinShape_ shape = ImNodesPinShape_Circle;
+    // Main loop
+    bool done = false;
+    while (!done)
+    {
+        // Poll and handle events (inputs, window resize, etc.)
+        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
+        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
+        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
+        // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         SDL_Event event;
-
-
-        // Events management
-        while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-
-                case SDL_QUIT:
-                    // handling of close button
-                    close = 1;
-                    break;
-
-                case SDL_KEYDOWN:
-                    // keyboard API for key pressed
-                    switch (event.key.keysym.scancode) {
-                        case SDL_SCANCODE_W:
-                        case SDL_SCANCODE_UP:
-                            dest.y -= speed / 30;
-                            break;
-                        case SDL_SCANCODE_A:
-                        case SDL_SCANCODE_LEFT:
-                            dest.x -= speed / 30;
-                            break;
-                        case SDL_SCANCODE_S:
-                        case SDL_SCANCODE_DOWN:
-                            dest.y += speed / 30;
-                            break;
-                        case SDL_SCANCODE_D:
-                        case SDL_SCANCODE_RIGHT:
-                            dest.x += speed / 30;
-                            break;
-                        default:
-                            break;
-                    }
-            }
+        while (SDL_PollEvent(&event))
+        {
+            ImGui_ImplSDL2_ProcessEvent(&event);
+            if (event.type == SDL_QUIT)
+                done = true;
+            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
+                done = true;
         }
 
-        // right boundary
-        if (dest.x + dest.w > 1000)
-            dest.x = 1000 - dest.w;
+        // Start the Dear ImGui frame
+        ImGui_ImplSDLRenderer_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
 
-        // left boundary
-        if (dest.x < 0)
-            dest.x = 0;
+        ImGui::Begin("node editor");
 
-        // bottom boundary
-        if (dest.y + dest.h > 1000)
-            dest.y = 1000 - dest.h;
 
-        // upper boundary
-        if (dest.y < 0)
-            dest.y = 0;
-        SDL_SetRenderDrawColor(rend, 10,10,10,255);
-        // clears the screen
-        SDL_RenderClear(rend);
-        SDL_SetRenderDrawColor(rend, 10,100,10,255);
-        SDL_RenderDrawRect(rend,&dest);
 
-        // triggers the double buffers
-        // for multiple rendering
-        SDL_RenderPresent(rend);
+        ImNodes::BeginNodeEditor();
+//https://github.com/Nelarius/imnodes
 
-        // calculates to 60 fps
-        SDL_Delay(1000 / 60);
+        {
+            ImNodes::BeginNode(0);
+            ImNodes::BeginNodeTitleBar();
+            ImGui::TextUnformatted("output node");
+            ImNodes::EndNodeTitleBar();
+            ImGui::Dummy(ImVec2(80.0f, 45.0f));
+
+            const int output_attr_id = 2;
+            ImNodes::BeginOutputAttribute(output_attr_id);
+            float a = 0;
+            ImGui::InputFloat("output", &a);
+            ImNodes::EndOutputAttribute();
+            ImNodes::EndNode();
+        }
+
+        {
+            ImNodes::BeginNode(1);
+            ImNodes::BeginNodeTitleBar();
+            ImGui::TextUnformatted("output node");
+            ImNodes::EndNodeTitleBar();
+            ImGui::Dummy(ImVec2(80.0f, 45.0f));
+
+             int output_attr_id = 1;
+
+
+
+            ImNodes::BeginInputAttribute(output_attr_id, shape);
+            float a = 0;
+            ImGui::InputFloat("output", &a);
+            ImNodes::EndInputAttribute();
+            ImNodes::EndNode();
+        }
+
+        ImNodes::Link(0, 1, 2);
+
+        ImNodes::EndNodeEditor();
+        int output_attr_id = 1;
+        if(ImNodes::IsPinHovered(&output_attr_id)){
+            shape = ImNodesPinShape_Quad;
+        }else{
+            shape = ImNodesPinShape_Circle;
+        }
+        ImGui::End();
+
+
+        // Rendering
+        ImGui::Render();
+        SDL_SetRenderDrawColor(renderer, (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
+        SDL_RenderClear(renderer);
+        ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
+        SDL_RenderPresent(renderer);
     }
 
+    ImNodes::DestroyContext();
+    // Cleanup
+    ImGui_ImplSDLRenderer_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
 
-
-    // destroy renderer
-    SDL_DestroyRenderer(rend);
-
-    // destroy window
-    SDL_DestroyWindow(win);
-
-    // close SDL
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
     SDL_Quit();
-
 
 
     //Display* d = new Image(2000,2000, "jes.jpg", Image::JPG);
@@ -148,3 +190,7 @@ int main(int argc, char* argv[])
     }
     return 0;
 }
+
+
+
+

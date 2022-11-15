@@ -26,6 +26,10 @@ public:
         m_files.push_back(filename);
     }
 
+    //todo add saftey for missing ilfes and ushc
+    //todo create sperate file for cuda safe call
+    //todo document
+
     CUmodule* compile(){
         CUlinkState linker;
         //initialize device

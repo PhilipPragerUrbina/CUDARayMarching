@@ -19,14 +19,14 @@ find_package(CUDAToolkit REQUIRED)
 find_package(SDL2 REQUIRED)
 
 #find gui sources
-file(GLOB IMGUI_SOURCE ${PROJECT_SOURCE_DIR}/include/imgui/*.cpp)
+file(GLOB IMGUI_SOURCE ${PROJECT_SOURCE_DIR}/include/imgui/*.cpp ${PROJECT_SOURCE_DIR}/include/imnodes/*.cpp)
 #Create gui library
 add_library("ImGui" STATIC ${IMGUI_SOURCE})
 
 
 
 #Compile host code
-include_directories(include include/imgui ${SDL2_INCLUDE_DIR})
+include_directories(include include/imgui ${SDL2_INCLUDE_DIR} include/SDL2 include/imnodes)
 add_executable(RayMarcher main.cu)
 set_target_properties(RayMarcher PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 #Add cuda driver api
