@@ -3,20 +3,27 @@
 #include "IO/Image.hpp"
 #include "IO/Video.hpp"
 
-
-
+#include "Nodes/NodeCompiler.hpp"
+#include "Nodes/EndNode.hpp"
+#include "Nodes/SphereNode.hpp"
+#include "Nodes/InfiniteRepeatNode.hpp"
+#include "Nodes/MergeNode.hpp"
 #include "GUI/Application.hpp"
-
 
 
 // Main code
 int main(int, char**)
 {
 
-    WindowGroup* group = new WindowGroup({new NodeView()},"eee" );
+    NodeView* nodeview = new NodeView();
+
+
+    WindowGroup* group = new WindowGroup({nodeview},"eee" );
     Application app( "w",1000,1000,group);
     app.run();
 
+
+    std::cout << nodeview->compile() << "\n";
 
 
     //Display* d = new Image(2000,2000, "jes.jpg", Image::JPG);

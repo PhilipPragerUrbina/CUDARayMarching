@@ -148,7 +148,7 @@ struct ImNodesIO
         // ImNodes::GetIO().MultipleSelectModifier.Modifier = &ImGui::GetIO().KeyCtrl;
         //
         // Left-clicking a node with this modifier pressed will add the node to the list of
-        // currently selected nodes. If this value is NULL, the Ctrl key will be used.
+        // currently selected m_nodes. If this value is NULL, the Ctrl key will be used.
         const bool* Modifier;
     } MultipleSelectModifier;
 
@@ -221,7 +221,7 @@ struct ImVec2;
 
 struct ImNodesContext;
 
-// An editor context corresponds to a set of nodes in a single workspace (created with a single
+// An editor context corresponds to a set of m_nodes in a single workspace (created with a single
 // Begin/EndNodeEditor pair)
 //
 // By default, the library creates an editor context behind the scenes, so using any of the imnodes
@@ -271,7 +271,7 @@ void BeginNodeEditor();
 void EndNodeEditor();
 
 // Add a navigable minimap to the editor; call before EndNodeEditor after all
-// nodes and links have been specified
+// m_nodes and links have been specified
 void MiniMap(
     const float                                      minimap_size_fraction = 0.2f,
     const ImNodesMiniMapLocation                     location = ImNodesMiniMapLocation_TopLeft,
@@ -360,7 +360,7 @@ bool IsNodeHovered(int* node_id);
 bool IsLinkHovered(int* link_id);
 bool IsPinHovered(int* attribute_id);
 
-// Use The following two functions to query the number of selected nodes or links in the current
+// Use The following two functions to query the number of selected m_nodes or links in the current
 // editor. Use after calling EndNodeEditor().
 int NumSelectedNodes();
 int NumSelectedLinks();
@@ -369,10 +369,10 @@ int NumSelectedLinks();
 // returned.
 void GetSelectedNodes(int* node_ids);
 void GetSelectedLinks(int* link_ids);
-// Clears the list of selected nodes/links. Useful if you want to delete a selected node or link.
+// Clears the list of selected m_nodes/links. Useful if you want to delete a selected node or link.
 void ClearNodeSelection();
 void ClearLinkSelection();
-// Use the following functions to add or remove individual nodes or links from the current editors
+// Use the following functions to add or remove individual m_nodes or links from the current editors
 // selection. Note that all functions require the id to be an existing valid id for this editor.
 // Select-functions has the precondition that the object is currently considered unselected.
 // Clear-functions has the precondition that the object is currently considered selected.

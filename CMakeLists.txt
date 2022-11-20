@@ -27,7 +27,9 @@ add_library("ImGui" STATIC ${IMGUI_SOURCE})
 
 #Compile host code
 include_directories(include include/imgui ${SDL2_INCLUDE_DIR} include/SDL2 include/imnodes)
-add_executable(RayMarcher main.cu)
+file(GLOB NODES Nodes/*.hpp
+        )
+add_executable(RayMarcher main.cu NODES )
 set_target_properties(RayMarcher PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 #Add cuda driver api
 target_link_libraries(RayMarcher PRIVATE CUDA::cudart CUDA::cuda_driver)

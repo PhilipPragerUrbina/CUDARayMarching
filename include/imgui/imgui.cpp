@@ -10473,7 +10473,7 @@ static bool ImGui::NavScoreItem(ImGuiNavItemData* result)
     // are found, so it only augments the graph produced by the above method using extra links. (important, since it doesn't guarantee strong connectedness)
     // This is just to avoid buttons having no links in a particular direction when there's a suitable neighbor. you get good graphs without this too.
     // 2017/09/29: FIXME: This now currently only enabled inside menu bars, ideally we'd disable it everywhere. Menus in particular need to catch failure. For general navigation it feels awkward.
-    // Disabling it may lead to disconnected graphs when nodes are very spaced out on different axis. Perhaps consider offering this as an option?
+    // Disabling it may lead to disconnected graphs when m_nodes are very spaced out on different axis. Perhaps consider offering this as an option?
     if (result->DistBox == FLT_MAX && dist_axial < result->DistAxial)  // Check axial match
         if (g.NavLayer == ImGuiNavLayer_Menu && !(g.NavWindow->Flags & ImGuiWindowFlags_ChildMenu))
             if ((move_dir == ImGuiDir_Left && dax < 0.0f) || (move_dir == ImGuiDir_Right && dax > 0.0f) || (move_dir == ImGuiDir_Up && day < 0.0f) || (move_dir == ImGuiDir_Down && day > 0.0f))
@@ -12020,7 +12020,7 @@ void ImGui::EndDragDropTarget()
 // [SECTION] LOGGING/CAPTURING
 //-----------------------------------------------------------------------------
 // All text output from the interface can be captured into tty/file/clipboard.
-// By default, tree nodes are automatically opened during logging.
+// By default, tree m_nodes are automatically opened during logging.
 //-----------------------------------------------------------------------------
 
 // Pass text data straight to log (without being displayed)
@@ -13183,7 +13183,7 @@ void ImGui::ShowMetricsWindow(bool* p_open)
     {
         for (int i = 0; i < g.OpenPopupStack.Size; i++)
         {
-            // As it's difficult to interact with tree nodes while popups are open, we display everything inline.
+            // As it's difficult to interact with tree m_nodes while popups are open, we display everything inline.
             const ImGuiPopupData* popup_data = &g.OpenPopupStack[i];
             ImGuiWindow* window = popup_data->Window;
             BulletText("PopupID: %08x, Window: '%s' (%s%s), BackupNavWindow '%s', ParentWindow '%s'",

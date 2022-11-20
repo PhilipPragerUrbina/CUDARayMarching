@@ -422,7 +422,7 @@ void DrawListAddNode(const int node_idx)
 
 void DrawListAppendClickInteractionChannel()
 {
-    // NOTE: don't use this function outside of EndNodeEditor. Using this before all nodes have been
+    // NOTE: don't use this function outside of EndNodeEditor. Using this before all m_nodes have been
     // added will screw up the node draw order.
     ImDrawListGrowChannels(GImNodes->CanvasDrawList, 1);
 }
@@ -584,9 +584,9 @@ void BeginNodeSelection(ImNodesEditorContext& editor, const int node_idx)
     // the interaction node to be selected, effective immediately.
     //
     // If the multiple selection modifier is active, we want to add this node
-    // to the current list of selected nodes.
+    // to the current list of selected m_nodes.
     //
-    // Otherwise, we want to allow for the possibility of multiple nodes to be
+    // Otherwise, we want to allow for the possibility of multiple m_nodes to be
     // moved at once.
     if (!editor.SelectedNodeIndices.contains(node_idx))
     {
@@ -597,7 +597,7 @@ void BeginNodeSelection(ImNodesEditorContext& editor, const int node_idx)
         }
         editor.SelectedNodeIndices.push_back(node_idx);
 
-        // Ensure that individually selected nodes get rendered on top
+        // Ensure that individually selected m_nodes get rendered on top
         ImVector<int>&   depth_stack = editor.NodeDepthOrder;
         const int* const elem = depth_stack.find(node_idx);
         IM_ASSERT(elem != depth_stack.end());
@@ -614,7 +614,7 @@ void BeginNodeSelection(ImNodesEditorContext& editor, const int node_idx)
         editor.ClickInteraction.Type = ImNodesClickInteractionType_None;
     }
 
-    // To support snapping of multiple nodes, we need to store the offset of
+    // To support snapping of multiple m_nodes, we need to store the offset of
     // each node in the selection to the origin of the dragged node.
     const ImVec2 ref_origin = editor.Nodes.Pool[node_idx].Origin;
     editor.PrimaryNodeOffset =
@@ -823,7 +823,7 @@ void TranslateSelectedNodes(ImNodesEditorContext& editor)
 {
     if (GImNodes->LeftMouseDragging)
     {
-        // If we have grid snap enabled, don't start moving nodes until we've moved the mouse
+        // If we have grid snap enabled, don't start moving m_nodes until we've moved the mouse
         // slightly
         const bool shouldTranslate = (GImNodes->Style.Flags & ImNodesStyleFlags_GridSnapping)
                                          ? ImGui::GetIO().MouseDragMaxDistanceSqr[0] > 5.0
@@ -1134,7 +1134,7 @@ void ResolveOccludedPins(const ImNodesEditorContext& editor, ImVector<int>& occl
     {
         const ImNodeData& node_below = editor.Nodes.Pool[depth_stack[depth_idx]];
 
-        // Iterate over the rest of the depth stack to find nodes overlapping the pins
+        // Iterate over the rest of the depth stack to find m_nodes overlapping the pins
         for (int next_depth_idx = depth_idx + 1; next_depth_idx < depth_stack.Size;
              ++next_depth_idx)
         {
@@ -1891,7 +1891,7 @@ static void MiniMapUpdate()
     GImNodes->CanvasDrawList->PushClipRect(
         mini_map_rect.Min, mini_map_rect.Max, true /* intersect with editor clip-rect */);
 
-    // Draw links first so they appear under nodes, and we can use the same draw channel
+    // Draw links first so they appear under m_nodes, and we can use the same draw channel
     for (int link_idx = 0; link_idx < editor.Links.Pool.size(); ++link_idx)
     {
         if (editor.Links.InUse[link_idx])
@@ -2294,7 +2294,7 @@ void EndNodeEditor()
     // Detect which UI element is being hovered over. Detection is done in a hierarchical fashion,
     // because a UI element being hovered excludes any other as being hovered over.
 
-    // Don't do hovering detection for nodes/links/pins when interacting with the mini-map, since
+    // Don't do hovering detection for m_nodes/links/pins when interacting with the mini-map, since
     // its an *overlay* with its own interaction behavior and must have precedence during mouse
     // interaction.
 
@@ -2303,7 +2303,7 @@ void EndNodeEditor()
         MouseInCanvas() && !IsMiniMapHovered())
     {
         // Pins needs some special care. We need to check the depth stack to see which pins are
-        // being occluded by other nodes.
+        // being occluded by other m_nodes.
         ResolveOccludedPins(editor, GImNodes->OccludedPinIndices);
 
         GImNodes->HoveredPinIdx = ResolveHoveredPin(editor.Pins, GImNodes->OccludedPinIndices);
@@ -2331,7 +2331,7 @@ void EndNodeEditor()
         }
     }
 
-    // In order to render the links underneath the nodes, we want to first select the bottom draw
+    // In order to render the links underneath the m_nodes, we want to first select the bottom draw
     // channel.
     GImNodes->CanvasDrawList->ChannelsSetCurrent(0);
 
@@ -2399,7 +2399,7 @@ void EndNodeEditor()
     }
     ClickInteractionUpdate(editor);
 
-    // At this point, draw commands have been issued for all nodes (and pins). Update the node pool
+    // At this point, draw commands have been issued for all m_nodes (and pins). Update the node pool
     // to detect unused node slots and remove those indices from the depth stack before sorting the
     // node draw commands by depth.
     ObjectPoolUpdate(editor.Nodes);
@@ -2445,7 +2445,7 @@ void MiniMap(
 
     // Actual drawing/updating of the MiniMap is done in EndNodeEditor so that
     // mini map is draw over everything and all pin/link positions are updated
-    // correctly relative to their respective nodes. Hence, we must store some of
+    // correctly relative to their respective m_nodes. Hence, we must store some of
     // of the state for the mini map in GImNodes for the actual drawing/updating
 }
 

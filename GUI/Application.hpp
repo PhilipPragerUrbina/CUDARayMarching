@@ -96,8 +96,7 @@ public:
             return;//nothing to run
         }
 
-        bool done = false;
-        while (!done) //main loop
+        while (!m_done) //main loop
         {
 
             poll();

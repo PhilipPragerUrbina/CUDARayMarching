@@ -261,7 +261,7 @@ struct ImNodesEditorContext
     ImVector<int> SelectedNodeIndices;
     ImVector<int> SelectedLinkIndices;
 
-    // Relative origins of selected nodes for snapping of dragged nodes
+    // Relative origins of selected m_nodes for snapping of dragged m_nodes
     ImVector<ImVec2> SelectedNodeOffsets;
     // Offset of the primary node origin relative to the mouse cursor.
     ImVec2           PrimaryNodeOffset;
