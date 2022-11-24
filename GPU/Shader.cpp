@@ -3,22 +3,12 @@
 //
 
 #pragma once
-#include "GPUCompiler.cuh"
+#include "GPUCompiler.cpp"
 #include "../IO/Display.hpp"
 #include "../Rays/Camera.cuh"
 
 
-#define CUDA_SAFE_CALL(x)                                         \
-  do {                                                            \
-    CUresult result = x;                                          \
-    if (result != CUDA_SUCCESS) {                                 \
-      const char *msg;                                            \
-      cuGetErrorName(result, &msg);                               \
-      std::cerr << "\nerror: " #x " failed with error "           \
-                << msg << '\n';                                   \
-      exit(1);                                                    \
-    }                                                             \
-  } while(0)
+
 
 /// The GPU shader for ray marching
 class Shader {
@@ -40,17 +30,20 @@ private:
     void allocate(){
         m_image_size = m_display->getHeight() * m_display->getWidth() * sizeof(Vector3); //get image size
         m_host_image_data = (Vector3*) malloc(m_image_size); //allocate host
-        CUDA_SAFE_CALL(cuMemAlloc(&m_device_image_data, m_image_size)); //allocate device
+        CUDA_CHECK(cuMemAlloc(&m_device_image_data, m_image_size)); //allocate device
     }
 public:
 
     /// Create a new ray marching shader
     /// @param output The display to output to
-   Shader(Display* output) : m_display(output){
+   Shader(Display* output, std::string extra_cpp = "") : m_display(output){
         //compile at runtime
         //todo find file
         std::string  name = "cuda_compile_ptx_1_generated_Kernel.cu.ptx"; //filename
         m_compiler.loadPTXFile(name);
+        if(!extra_cpp.empty()){
+            m_compiler.loadCPP(extra_cpp);
+        }
         m_module = m_compiler.compile();
 
        allocate(); //allocate image memory based on display
@@ -64,16 +57,16 @@ public:
    /// @param camera What viewpoint to use
    void run( Camera& camera){
         CUfunction k;
-       CUDA_SAFE_CALL(cuModuleGetFunction(&k, *m_module, "_Z6kernelP7Vector36Camera"));
+       CUDA_CHECK(cuModuleGetFunction(&k, *m_module, "_Z6kernelP7Vector36Camera"));
 
        void *args[] = { &m_device_image_data, &camera };
 
-       CUDA_SAFE_CALL(cuLaunchKernel(k,m_blocks.x,m_blocks.y, m_blocks.z,m_threads.x, m_threads.y, m_threads.z, 0, NULL,args,0));
+       CUDA_CHECK(cuLaunchKernel(k, m_blocks.x, m_blocks.y, m_blocks.z, m_threads.x, m_threads.y, m_threads.z, 0, NULL, args, 0));
 
 
 
        cuCtxSynchronize();
-       CUDA_SAFE_CALL(cuMemcpyDtoH(m_host_image_data, m_device_image_data, m_image_size));
+       CUDA_CHECK(cuMemcpyDtoH(m_host_image_data, m_device_image_data, m_image_size));
 
 
 

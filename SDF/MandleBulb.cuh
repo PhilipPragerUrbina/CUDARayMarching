@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "SDF.cuh"
+#include "../SDF/SDF.cuh"
 
 /// SDF for a mandelbulb
 class MandelBulb : public SDF{

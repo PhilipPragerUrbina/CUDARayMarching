@@ -27,10 +27,7 @@ public:
     void compile(NodeCompiler *compiler) override{
         Node* sdf_in = getInput(0).connected_from;
         Node* sdf_in_2 = getInput(1).connected_from;
-        if(sdf_in == nullptr || !sdf_in->isActive()){ //check if input exists
-            return;
-        }
-        if(sdf_in_2 == nullptr || !sdf_in_2->isActive()){ //check if input exists
+        if(isInValidInput(sdf_in) || isInValidInput(sdf_in_2)){ //check if input exists
             return;
         }
         compiler->newNode(getID(), "Merge");
@@ -38,6 +35,8 @@ public:
         compiler->comma();
         compiler->refParameter(sdf_in_2->getID());
         compiler->closeNode();
+
+
         sdf_in->compile(compiler);
         sdf_in_2->compile(compiler);
 

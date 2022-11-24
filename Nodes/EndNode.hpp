@@ -20,7 +20,7 @@ public:
 
     void compile(NodeCompiler *compiler) override{
         Node* sdf_in = getInput(0).connected_from;
-        if(sdf_in == nullptr || !sdf_in->isActive()){ //check if input exists
+        if(isInValidInput(sdf_in)){ //check if input exists
             return;
         }
         compiler->ret(sdf_in->getID());

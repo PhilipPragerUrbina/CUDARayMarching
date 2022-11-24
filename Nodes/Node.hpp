@@ -3,6 +3,8 @@
 //
 
 #pragma once
+#include <string>
+#include "NodeCompiler.hpp"
 #include "imnodes.h"
 
 /// A parent class for a node in the node editor
@@ -15,6 +17,13 @@ public:
         int other_pin_id = 0; //Other pin
         int this_pin_id = 0;  //Which pin this connection is coming from
         int id; //Unique id of this connection
+    };
+
+    /// The type that a pin outputs or inputs
+    enum PinType{
+        SCALAR,
+        VECTOR,
+        SDF
     };
 
     /// Set up the node parent class
@@ -130,6 +139,22 @@ public:
     }
 
 
+    /// Get the type of output pin
+    /// @param id The pin id
+    /// @return The type
+    PinType getOutputPinType(int id) const{
+        int relative_id = id - m_output_start; //get the node pin rather than global pin
+        return getRelativeOutputPinType(relative_id);
+    }
+    /// Get the type of input pin
+    /// @param id The pin id
+    /// @return The type
+    PinType getInputPinType(int id) const{
+        int relative_id = id - m_input_start; //get the node pin rather than global pin
+        return getRelativeInputPinType(relative_id);
+    }
+
+
 
 
 private:
@@ -166,9 +191,24 @@ protected:
         return m_inputs[i];
     }
 
+    /// Check if node is valid
+    /// @param node
+    /// @return True if not valid
+    static bool isInValidInput(Node* node){
+        return node == nullptr || !node->isActive();
+    }
+
     /// Draw node inputs, outputs, parameters, etc.
     virtual void drawNodeContents(){}
 
+    /// Get the pin type of output pin
+    /// @param relative_id Which pin is it?
+    /// @return The pin type
+    virtual PinType getRelativeOutputPinType(int relative_id) const{return SDF;}
+    /// Get the pin type of Input pin
+    /// @param relative_id Which pin is it?
+    /// @return The pin type
+    virtual PinType getRelativeInputPinType(int relative_id) const{return SDF;}
 
 };
 

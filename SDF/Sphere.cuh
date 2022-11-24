@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "SDF.cuh"
+#include "../SDF/SDF.cuh"
 
 /// A sphere
 class Sphere : public SDF{

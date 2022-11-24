@@ -4,6 +4,13 @@
 
 #pragma once
 #include <map>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <streambuf>
+#include <sstream>
+#include <regex>
 ///Generate C++ code for nodes
 class NodeCompiler {
 private:
@@ -11,7 +18,10 @@ private:
     std::vector<std::string> m_lines;
     std::string m_latest_line = "";
     std::map<std::string,std::string> m_includes;
+    std::map<std::string,std::string> m_includes_2;
+
     std::string m_method_name;
+    std::vector<std::string> m_header_names;
 public:
     /// Generate a c++ method
     /// @param method_name The name of the method
@@ -39,6 +49,9 @@ public:
     void refParameter(int id){
         m_latest_line += "&node_" + std::to_string(id);
     }
+    void valParameter(int id){
+        m_latest_line += "node_" + std::to_string(id);
+    }
 
     void closeNode(){
         m_latest_line += "); \n";
@@ -52,20 +65,71 @@ public:
         m_latest_line = "";
     }
 
+    std::vector<std::string> getHeaderNames(){
+        return m_header_names;
+    }
+
     ///Finalize the compilation
     void finish(){
+        m_code += open_file("../Rays/Ray.cuh");
 
         for (auto const& include : m_includes)
         {
-           m_code += include.second;
+         //  m_code += include.second;
+           m_header_names.push_back(include.first + ".cuh");
+            m_code += open_file("../SDF/"+include.first + ".cuh");
+
         }
-        m_code += "double " + m_method_name + "(Ray r) { \n";
+        m_code += "extern \"C\" __device__ double " + m_method_name + "(Ray r) { \n";
         for (int i = m_lines.size()-1; i >= 0; i--){
             //reverse order
             m_code+= m_lines[i];
         }
 
         m_code += "\n}";
+    }
+
+    std::string open_file(std::string name){
+        if(m_includes_2.find(name) != m_includes_2.end()){
+            return "";
+        }
+        m_includes_2[name] = "a";
+
+        std::ifstream t(name);
+        std::stringstream buffer;
+        buffer << t.rdbuf();
+
+        std::string  s1 =  buffer.str();
+
+        std::regex e(R"reg(\s*#\s*include\s*([<"])([^>"]+)([>"]))reg");
+        std::regex ee("(#pragma once)|(#define FULL_COMPILATION)");
+
+
+        std::sregex_iterator iter(s1.begin(), s1.end(), e);
+        std::sregex_iterator end;
+
+        while(iter != end)
+        {
+
+
+          //  std::cout << "expression match #" << 0 << ": " << (*iter)[0] << std::endl;
+            for(unsigned i = 1; i < iter->size(); ++i)
+            {
+                if(i==2){
+
+
+                    if(std::string((*iter)[i-1]) != "<"){
+                        m_code += open_file( std::string((*iter)[i]));
+                    }
+
+                }
+             //   std::cout << "capture submatch #" << i << ": " << (*iter)[i] << std::endl;
+            }
+            ++iter;
+        }
+
+        return  std::regex_replace(std::regex_replace(s1, ee, ""), e, "");;
+
     }
 
     std::string getOutput(){

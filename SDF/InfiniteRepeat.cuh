@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "SDF.cuh"
+#include "../SDF/SDF.cuh"
 
 /// Infinite repeat an SDF
 class InfiniteRepeat : public SDF{

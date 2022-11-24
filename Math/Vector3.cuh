@@ -2,13 +2,15 @@
 // Created by Philip on 11/6/2022.
 //
 
-#ifndef RAYMARCHER_VECTOR3_CUH
-#define RAYMARCHER_VECTOR3_CUH
+#pragma once
 #include <cuda_runtime.h>
 #include <ostream>
 
 //ease opengl conversion
 #define vec3 Vector3
+
+//defined if being compiled using nvcc rather than nvrtc
+#define FULL_COMPILATION
 
 /// Cuda Vector3 class
 /// @see Based off of TensorMath
@@ -138,23 +140,26 @@ public:
         *this = *this / other;
     }
 
+
+#ifdef FULL_COMPILATION //Not supported by NVRTC
     /// Print a vector using console out
     /// @details (x,y,z)
     friend std::ostream &operator<<(std::ostream &os, const Vector3 &vector) {
         os << "(" << vector[0] << "," << vector[1] << "," << vector[2] << ")";
         return os;
     }
+#endif
 
     /// Get the absolute value of each of the vector's components
     /// @return the absolute value vector
     __device__ __host__ Vector3 abs() const{
-        return {std::abs(m_data[0]), std::abs(m_data[1]), std::abs(m_data[2])};
+        return {::abs(m_data[0]), ::abs(m_data[1]), ::abs(m_data[2])};
     }
 
     /// Get the magnitude or length of a vector
     /// @return The length
     __device__ __host__ double length() const {
-        return std::sqrt(m_data[0] * m_data[0] + m_data[1] * m_data[1] + m_data[2] * m_data[2]);
+        return ::sqrt(m_data[0] * m_data[0] + m_data[1] * m_data[1] + m_data[2] * m_data[2]);
     }
 
     /// Combine two vectors into a single value
@@ -205,4 +210,3 @@ public:
 };
 
 
-#endif //RAYMARCHER_VECTOR3_CUH
